@@ -1,8 +1,6 @@
 <script setup>
-import HelloWorld from './components/HelloWorld.vue'
-import TheWelcome from './components/TheWelcome.vue'
-import TablePeople from '@/components/TablePeople.vue'
-
+import TablePeople from '@/components/TablePeople.vue';
+import 'vue3-toastify/dist/index.css';
 </script>
 
 <template>

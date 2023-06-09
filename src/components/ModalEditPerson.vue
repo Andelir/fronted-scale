@@ -1,13 +1,70 @@
 <script>
-import {defineComponent} from 'vue'
+
+import {defineComponent} from 'vue';
 
 export default defineComponent({
-  name: "ModalEditPerson"
+  name: "ModalEditPerson",
+  emits: ["actualizar"],
+  props: {
+    personProp: {
+      type: Object,
+      required: true
+    }
+  },
+  data() {
+    return {
+      personEdit: {...this.personProp}
+    }
+  },
+  beforeUpdate() {
+    // Acceder al estado anterior y al estado actual
+    //this.personEditOf = {...this.personEditOp}
+    //console.log('Estado anterior:', this.personEditOf);
+    //console.log('Estado actual:', this.personEditOf);
+    //console.log('Estado anterior:', this.$data);
+    //console.log('Estado actual:', this.$data);
+  },
+  updated() {
+    // Realizar acciones después de los cambios de estado
+    //this.personEditOf = {...this.personEditOp}
+    //console.log(t'El componente ha cambiado su estado.');
+  },
+  watch: {
+     personProp(newValue, oldValue) {
+/*       console.log('Nuevo valor de personEditOp', newValue);
+      console.log('Antiguo valor de personEditOp', oldValue); */
+      this.personEdit = JSON.parse(JSON.stringify(newValue));
+    },
+  /*   personEditOf(nuevoValor, valorAnterior) {
+      console.log('Propiedad cambiada. Nuevo valor of:', nuevoValor);
+      console.log('Propiedad cambiada. Valor anterior of:', valorAnterior);
+    }, */
+  },
+  methods: {
+    async updatePerson() {
+      const res = await fetch(
+          `http://localhost:3000/api/v1/people/${this.personEdit.id}`,
+          {
+            method: 'PUT',
+            headers: {
+              "Content-Type" : "application/json"
+            },
+            body: JSON.stringify(this.personEdit),
+            redirect: 'follow'
+          }
+      )
+      const { message } = await res.json();
+      //Envio la persona actualizada al padre(TablePeople) para refrescar la data.
+      this.$emit('actualizar',this.personEdit, message, 'update');
+      //Cierro el modal
+      this.$refs.closeModal.click();
+      
+    },
+  }
 })
 </script>
 
 <template>
-<div>
   <!-- Modal -->
   <div class="modal fade" id="editPerson" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog">
@@ -51,13 +108,12 @@ export default defineComponent({
           </form>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-          <button type="button" class="btn btn-primary" @click="editPerson()">Guardar</button>
+          <button ref="closeModal" type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+          <button type="button" class="btn btn-primary" @click="updatePerson()">Guardar</button>
         </div>
       </div>
     </div>
   </div>
-</div>
 </template>
 
 <style scoped>
